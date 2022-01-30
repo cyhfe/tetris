@@ -15,6 +15,14 @@ const matrix = [
   [0, 1, 0],
 ]
 
+function merge(arena, player) {
+  for (let i = 0; i < player.matrix.length; i++) {
+    for (let j = 0; j < player.matrix[i].length; j++) {
+      arena[player.pos.y + i][player.pos.x + j] = matrix[i][j]
+    }
+  }
+}
+
 function drawMatrix(matrix, offset) {
   matrix.forEach((row, y) => {
     row.forEach((value, x) => {
@@ -28,7 +36,7 @@ function drawMatrix(matrix, offset) {
 
 const player = {
   pos: {
-    x: 1,
+    x: 0,
     y: 0,
   },
   matrix,
@@ -57,7 +65,6 @@ function createMatrix(w, h) {
 
 const arena = createMatrix(12, 20)
 
-console.table(arena)
 let lastTime = 0
 let dropCounter = 0
 let dropInterval = 1000
@@ -73,14 +80,45 @@ function update(time = 0) {
   requestAnimationFrame(update)
 }
 
+function collide(arena, player) {
+  for (let i = 0; i < player.matrix.length; i++) {
+    for (let j = 0; j < player.matrix[i].length; j++) {
+      if (
+        player.matrix[i][j] !== 0 &&
+        arena[player.pos.y + i] &&
+        arena[player.pos.y + i][player.pos.x + j] !== 0
+      ) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 window.addEventListener("keydown", (e) => {
   console.log(e.key)
   switch (e.key) {
     case "ArrowLeft": {
-      player.pos.x <= 0 ? player.pos.x : player.pos.x--
+      const nextPlayerPos = {
+        ...player,
+        pos: {
+          ...player.pos,
+          x: player.pos.x - 1,
+        },
+      }
+      if (collide(arena, nextPlayerPos)) break
+      player.pos.x--
       break
     }
     case "ArrowRight": {
+      const nextPlayerPos = {
+        ...player,
+        pos: {
+          ...player.pos,
+          x: player.pos.x + 1,
+        },
+      }
+      if (collide(arena, nextPlayerPos)) break
       player.pos.x++
       break
     }
@@ -96,3 +134,7 @@ window.addEventListener("keydown", (e) => {
 })
 
 update()
+
+merge(arena, player)
+
+console.table(arena)
