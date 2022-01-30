@@ -21,6 +21,7 @@ function merge(arena, player) {
       arena[player.pos.y + i][player.pos.x + j] = matrix[i][j]
     }
   }
+  console.table(arena)
 }
 
 function drawMatrix(matrix, offset) {
@@ -70,9 +71,7 @@ let dropCounter = 0
 let dropInterval = 1000
 function update(time = 0) {
   if (time - lastTime > dropInterval) {
-    player.pos.y <= HEIGHT - player.matrix.length - 1
-      ? player.pos.y++
-      : player.pos.y
+    playerDrop()
     lastTime = time
   }
   resetCanvas()
@@ -80,13 +79,30 @@ function update(time = 0) {
   requestAnimationFrame(update)
 }
 
+function playerDrop() {
+  const nextPlayerPos = {
+    ...player,
+    pos: {
+      ...player.pos,
+      y: player.pos.y + 1,
+    },
+  }
+  console.log(collide(arena, nextPlayerPos))
+  if (collide(arena, nextPlayerPos)) {
+    merge(arena, player)
+    player.pos.y = 0
+  } else {
+    player.pos = nextPlayerPos.pos
+  }
+}
+
 function collide(arena, player) {
   for (let i = 0; i < player.matrix.length; i++) {
     for (let j = 0; j < player.matrix[i].length; j++) {
       if (
-        player.matrix[i][j] !== 0 &&
-        arena[player.pos.y + i] &&
-        arena[player.pos.y + i][player.pos.x + j] !== 0
+        (player.matrix[i][j] !== 0 &&
+          arena[player.pos.y + i][player.pos.x + j] !== 0) ||
+        !arena[player.pos.y + i]
       ) {
         return true
       }
@@ -134,7 +150,3 @@ window.addEventListener("keydown", (e) => {
 })
 
 update()
-
-merge(arena, player)
-
-console.table(arena)
