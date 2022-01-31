@@ -1,3 +1,8 @@
+const scoreDom = document.getElementById("score")
+const startDom = document.getElementById("start")
+const pauseDom = document.getElementById("pause")
+const resetDom = document.getElementById("reset")
+
 const canvas = document.getElementById("canvas")
 const context = canvas.getContext("2d")
 
@@ -57,11 +62,24 @@ const initPlayer = {
 
 let player = { ...initPlayer }
 
+let score = 0
+
 let arena = createMatrix(12, 20)
 
 let lastTime = 0
 let dropCounter = 0
 let dropInterval = 1000
+
+let requestAnimationFrameId = null
+
+startDom.addEventListener("click", (e) => {
+  // if (requestAnimationFrameId) return
+  update()
+})
+
+pauseDom.addEventListener("click", (e) => {
+  requestAnimationFrameId && cancelAnimationFrame(requestAnimationFrameId)
+})
 
 window.addEventListener("keydown", (e) => {
   switch (e.key) {
@@ -110,7 +128,12 @@ window.addEventListener("keydown", (e) => {
     }
   }
 })
-update()
+
+// update()
+
+function updateScore() {
+  scoreDom.innerHTML = "score " + score
+}
 
 function rotate(matrix) {
   const copy = JSON.parse(JSON.stringify(matrix))
@@ -173,10 +196,11 @@ function clearLine(arena) {
       if (arena[i][j] === 0) break
       if (j === arena[i].length - 1) {
         arena.unshift(arena.splice(i, 1)[0].fill(0))
+        score++
+        updateScore()
       }
     }
   }
-  console.table(arena)
 }
 
 function resetCanvas() {
@@ -202,7 +226,7 @@ function update(time = 0) {
 
   resetCanvas()
   draw()
-  requestAnimationFrame(update)
+  requestAnimationFrameId = requestAnimationFrame(update)
 }
 
 function playerDrop() {
@@ -259,4 +283,6 @@ function isOver() {
 function init() {
   arena = createMatrix(12, 20)
   player = { ...initPlayer }
+  score = 0
+  updateScore()
 }
