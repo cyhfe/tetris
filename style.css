@@ -2,30 +2,41 @@ body {
   margin: 0;
   width: 100%;
   height: 100vh;
-  background-color: rgb(63, 55, 55);
-  /* background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); */
-  /* background-size: 400% 400%; */
-  /* animation: gradientBG 15s ease infinite; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: rgb(54, 44, 44);
+  background-image: url(./bg.png);
+  background-position: center;
 }
 
 canvas {
-  border: 2px solid rgb(160, 160, 160);
+  border: 2px solid rgb(109, 109, 109);
 }
 
 .container {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  margin-right: 5rem;
 }
 
-/* @keyframes gradientBG {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-} */
+button {
+  width: 90px;
+  height: 45px;
+  margin-bottom: 1rem;
+  border-radius: 1000px;
+}
+
+button {
+  outline: none;
+}
+
+#score {
+  font-size: 2rem;
+}
+
+.information {
+  color: #fff;
+  margin-left: 5rem;
+}

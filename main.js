@@ -189,7 +189,16 @@ function drawMatrix(matrix, offset) {
     row.forEach((value, x) => {
       if (value !== 0) {
         pickColor(value)
-        context.fillRect(x + offset.x, y + offset.y, 1, 1)
+        context.fillRect(
+          x + offset.x + 0.1,
+          y + offset.y + 0.1,
+          1 - 0.2,
+          1 - 0.2
+        )
+
+        context.strokeStyle = "#fff"
+        context.lineWidth = 0.1
+        context.strokeRect(x + offset.x, y + offset.y, 1, 1)
       }
     })
   })
@@ -218,6 +227,16 @@ function draw() {
   drawNet()
 }
 
+function drawBorder(xPos, yPos, width, height, thickness = 1) {
+  context.fillStyle = "#fff"
+  context.fillRect(
+    xPos - thickness,
+    yPos - thickness,
+    width + thickness * 2,
+    height + thickness * 2
+  )
+}
+
 function clearLine(arena) {
   for (let i = 0; i < arena.length; i++) {
     for (let j = 0; j < arena[i].length; j++) {
@@ -232,12 +251,14 @@ function clearLine(arena) {
 }
 
 function resetCanvas() {
-  context.fillStyle = "#dddddd"
+  context.clearRect(0, 0, WIDTH, HEIGHT)
+  context.fillStyle = "#000000"
   context.fillRect(0, 0, WIDTH, HEIGHT)
+  // drawNet()
 }
 
 function drawNet() {
-  context.strokeStyle = "#ffffff"
+  context.strokeStyle = "#ffffff16"
   context.lineWidth = 0.1
   for (let i = 1; i < 12; i++) {
     context.beginPath()
