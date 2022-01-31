@@ -52,6 +52,17 @@ const tetrominoes = {
   ],
 }
 
+const colors = [
+  null,
+  "#2b39a3",
+  "#e6e34f",
+  "#e99a50",
+  "#dd3b9c",
+  "#4fd388",
+  "#d13f3d",
+  "#4bbad3",
+]
+
 let player = createPlayer()
 
 let score = 0
@@ -64,7 +75,7 @@ let dropInterval = 1000
 
 let requestAnimationFrameId = null
 
-resetCanvas()
+update()
 
 startDom.addEventListener("click", (e) => {
   if (!requestAnimationFrameId) {
@@ -177,11 +188,15 @@ function drawMatrix(matrix, offset) {
   matrix.forEach((row, y) => {
     row.forEach((value, x) => {
       if (value !== 0) {
-        context.fillStyle = "red"
+        pickColor(value)
         context.fillRect(x + offset.x, y + offset.y, 1, 1)
       }
     })
   })
+}
+
+function pickColor(value) {
+  context.fillStyle = colors[value]
 }
 
 function resetPlayer() {
@@ -197,8 +212,10 @@ function createPlayerMatrix() {
 }
 
 function draw() {
+  resetCanvas()
   drawMatrix(player.matrix, player.pos)
   drawMatrix(arena, { x: 0, y: 0 })
+  drawNet()
 }
 
 function clearLine(arena) {
@@ -215,8 +232,25 @@ function clearLine(arena) {
 }
 
 function resetCanvas() {
-  context.fillStyle = "#000"
+  context.fillStyle = "#dddddd"
   context.fillRect(0, 0, WIDTH, HEIGHT)
+}
+
+function drawNet() {
+  context.strokeStyle = "#ffffff"
+  context.lineWidth = 0.1
+  for (let i = 1; i < 12; i++) {
+    context.beginPath()
+    context.moveTo(i, 0)
+    context.lineTo(i, 20)
+    context.stroke()
+  }
+  for (let i = 1; i < 20; i++) {
+    context.beginPath()
+    context.moveTo(0, i)
+    context.lineTo(12, i)
+    context.stroke()
+  }
 }
 
 function createMatrix(w, h) {
@@ -234,8 +268,6 @@ function update(time = 0) {
     dropCounter = 0
   }
   lastTime = time
-
-  resetCanvas()
   draw()
   requestAnimationFrameId = requestAnimationFrame(update)
 }
