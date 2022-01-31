@@ -52,15 +52,7 @@ const tetrominoes = {
   ],
 }
 
-const initPlayer = {
-  pos: {
-    x: 0,
-    y: 0,
-  },
-  matrix: createPlayerMatrix(),
-}
-
-let player = { ...initPlayer }
+let player = createPlayer()
 
 let score = 0
 
@@ -72,16 +64,27 @@ let dropInterval = 1000
 
 let requestAnimationFrameId = null
 
+resetCanvas()
+
 startDom.addEventListener("click", (e) => {
-  // if (requestAnimationFrameId) return
-  update()
+  if (!requestAnimationFrameId) {
+    update()
+  }
 })
 
 pauseDom.addEventListener("click", (e) => {
-  requestAnimationFrameId && cancelAnimationFrame(requestAnimationFrameId)
+  if (requestAnimationFrameId) {
+    cancelAnimationFrame(requestAnimationFrameId)
+    requestAnimationFrameId = null
+  }
+})
+
+resetDom.addEventListener("click", (e) => {
+  init()
 })
 
 window.addEventListener("keydown", (e) => {
+  if (!requestAnimationFrameId) return
   switch (e.key) {
     case "ArrowLeft": {
       const nextPlayerPos = {
@@ -129,7 +132,15 @@ window.addEventListener("keydown", (e) => {
   }
 })
 
-// update()
+function createPlayer() {
+  return {
+    pos: {
+      x: 0,
+      y: 0,
+    },
+    matrix: createPlayerMatrix(),
+  }
+}
 
 function updateScore() {
   scoreDom.innerHTML = "score " + score
@@ -282,7 +293,7 @@ function isOver() {
 
 function init() {
   arena = createMatrix(12, 20)
-  player = { ...initPlayer }
+  player = createPlayer()
   score = 0
   updateScore()
 }
