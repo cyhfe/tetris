@@ -9,12 +9,6 @@ canvas.height = HEIGHT
 
 context.scale(20, 20)
 
-// const matrix = [
-//   [0, 0, 0],
-//   [1, 1, 1],
-//   [0, 1, 0],
-// ]
-
 const tetrominoes = {
   I: [
     [1, 0, 0, 0],
@@ -22,50 +16,118 @@ const tetrominoes = {
     [1, 0, 0, 0],
     [1, 0, 0, 0],
   ],
+  O: [
+    [2, 2],
+    [2, 2],
+  ],
+  L: [
+    [3, 0, 0],
+    [3, 0, 0],
+    [3, 3, 0],
+  ],
+  J: [
+    [4, 4, 0],
+    [4, 0, 0],
+    [4, 0, 0],
+  ],
+  S: [
+    [5, 0, 0],
+    [5, 5, 0],
+    [0, 5, 0],
+  ],
+  Z: [
+    [0, 6, 0],
+    [6, 6, 0],
+    [6, 0, 0],
+  ],
   T: [
     [0, 0, 0],
-    [1, 1, 1],
-    [0, 1, 0],
+    [7, 7, 7],
+    [0, 7, 0],
   ],
-  // z: [
-  //   [0, 0, 0],
-  //   [1, 1, 1],
-  //   [0, 1, 0],
-  // ],
-  // s: [
-  //   [0, 0, 0],
-  //   [1, 1, 1],
-  //   [0, 1, 0],
-  // ],
 }
+
+const initPlayer = {
+  pos: {
+    x: 0,
+    y: 0,
+  },
+  matrix: createPlayerMatrix(),
+}
+
+let player = { ...initPlayer }
+
+let arena = createMatrix(12, 20)
+
+let lastTime = 0
+let dropCounter = 0
+let dropInterval = 1000
+
+window.addEventListener("keydown", (e) => {
+  switch (e.key) {
+    case "ArrowLeft": {
+      const nextPlayerPos = {
+        ...player,
+        pos: {
+          ...player.pos,
+          x: player.pos.x - 1,
+        },
+      }
+      if (collide(arena, nextPlayerPos)) break
+      player.pos.x--
+      break
+    }
+    case "ArrowRight": {
+      const nextPlayerPos = {
+        ...player,
+        pos: {
+          ...player.pos,
+          x: player.pos.x + 1,
+        },
+      }
+      if (collide(arena, nextPlayerPos)) break
+      player.pos.x++
+      break
+    }
+    case "ArrowDown": {
+      const nextPlayerPos = {
+        ...player,
+        pos: {
+          ...player.pos,
+          y: player.pos.y + 1,
+        },
+      }
+      if (collide(arena, nextPlayerPos)) break
+      player.pos = nextPlayerPos.pos
+      // dropCounter = 0
+
+      break
+    }
+    case "ArrowUp": {
+      rotate(player.matrix)
+
+      break
+    }
+  }
+})
+update()
 
 function rotate(matrix) {
   const copy = JSON.parse(JSON.stringify(matrix))
-  for (let i = 0; i < matrix.length; i++) {
-    for (let j = 0; j < matrix[i].length; j++) {
-      matrix[j][i] = copy[i][j]
+  const next = JSON.parse(JSON.stringify(matrix))
+  for (let i = 0; i < next.length; i++) {
+    for (let j = 0; j < next[i].length; j++) {
+      next[j][i] = copy[i][j]
     }
   }
-  matrix.forEach((r) => r.reverse())
+  next.forEach((r) => r.reverse())
+  const nextPlayer = {
+    ...player,
+    matrix: next,
+  }
+  if (collide(arena, nextPlayer)) return
+  player = nextPlayer
 }
-
-// [1, 2, 3],
-// [4, 5, 6],
-// [7, 8, 9],
-
-// [7, 4, 1],
-// [8, 5, 2],
-// [9, 6, 3],
-
-// 1, 2,3 , 4,
-// 5, 6,7,8
-// 9,10,11,12,
-// 13,14,15,16
-
-// 13,9 5 1
-// 14 10 6 2
-// 15 11 7 3
-// 16 12 8 4
 
 function merge(arena, player) {
   for (let i = 0; i < player.matrix.length; i++) {
@@ -75,7 +137,6 @@ function merge(arena, player) {
       }
     }
   }
-  // console.table(arena)
 }
 
 function drawMatrix(matrix, offset) {
@@ -89,20 +150,11 @@ function drawMatrix(matrix, offset) {
   })
 }
 
-const initPlayer = {
-  pos: {
-    x: 0,
-    y: 0,
-  },
-  matrix: createPlayerMatrix(),
-}
-
-let player = { ...initPlayer }
-
 function resetPlayer() {
+  player.pos.x = 0
   player.pos.y = 0
   player.matrix = createPlayerMatrix()
-  dropCounter = 0
+  isOver()
 }
 
 function createPlayerMatrix() {
@@ -120,10 +172,11 @@ function clearLine(arena) {
     for (let j = 0; j < arena[i].length; j++) {
       if (arena[i][j] === 0) break
       if (j === arena[i].length - 1) {
-        arena.unshift(arena.splice(i, 1).fill(0))
+        arena.unshift(arena.splice(i, 1)[0].fill(0))
       }
     }
   }
+  console.table(arena)
 }
 
 function resetCanvas() {
@@ -131,11 +184,6 @@ function resetCanvas() {
   context.fillRect(0, 0, WIDTH, HEIGHT)
 }
 
-// [
-//   [0,0,0],
-//   [0,0,0],
-//   [0,0,0],
-// ]
 function createMatrix(w, h) {
   const matrix = Array.from(new Array(h), () => {
     return new Array(w).fill(0)
@@ -143,11 +191,6 @@ function createMatrix(w, h) {
   return matrix
 }
 
-let arena = createMatrix(12, 20)
-
-let lastTime = 0
-let dropCounter = 0
-let dropInterval = 1000
 function update(time = 0) {
   const deltaTime = time - lastTime
   dropCounter += deltaTime
@@ -206,60 +249,12 @@ function collide(arena, player) {
   return false
 }
 
-window.addEventListener("keydown", (e) => {
-  switch (e.key) {
-    case "ArrowLeft": {
-      const nextPlayerPos = {
-        ...player,
-        pos: {
-          ...player.pos,
-          x: player.pos.x - 1,
-        },
-      }
-      if (collide(arena, nextPlayerPos)) break
-      player.pos.x--
-      break
-    }
-    case "ArrowRight": {
-      const nextPlayerPos = {
-        ...player,
-        pos: {
-          ...player.pos,
-          x: player.pos.x + 1,
-        },
-      }
-      if (collide(arena, nextPlayerPos)) break
-      player.pos.x++
-      break
-    }
-    case "ArrowDown": {
-      const nextPlayerPos = {
-        ...player,
-        pos: {
-          ...player.pos,
-          y: player.pos.y + 1,
-        },
-      }
-      if (collide(arena, nextPlayerPos)) break
-      player.pos = nextPlayerPos.pos
-      break
-    }
-    case "ArrowUp": {
-      rotate(player.matrix)
-
-      break
-    }
-  }
-})
-
 function isOver() {
   if (player.pos.y === 0 && collide(arena, player)) {
-    alert("you lose")
+    alert("gameover")
     init()
   }
 }
-
-update()
 
 function init() {
   arena = createMatrix(12, 20)
