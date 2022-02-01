@@ -254,7 +254,6 @@ function resetCanvas() {
   context.clearRect(0, 0, WIDTH, HEIGHT)
   context.fillStyle = "#000000"
   context.fillRect(0, 0, WIDTH, HEIGHT)
-  // drawNet()
 }
 
 function drawNet() {
